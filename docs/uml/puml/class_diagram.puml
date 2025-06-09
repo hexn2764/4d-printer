@@ -1,0 +1,156 @@
+@startuml TSRW Full Class Diagram
+title TSRW Full Class Diagram
+
+' --------------------
+' Classes & Attributes
+' --------------------
+class Analyser {
+  - logger: Logger
+  --
+  + analyze(data: Data, top_x: int) : Dict<str, Any>
+  - _get_total_duration(data: Data) : float
+  - _get_top_x_entries(data: Data, top_x: int) : List<Tuple<int, Dict<str, Any>>>
+}
+
+class CSVHandler {
+  - logger: Logger
+  - csv_path: str
+  - test_case_parser: TestCaseParser
+  - duration_parser: DurationParser
+  - status_parser: StatusParser
+  --
+  + read_csv(data: Data) : void
+  + export_csv(data: Data, export_folder: str, sort_key: str = "Duration") : void
+}
+
+class Data {
+  - data: Dict<int, Dict<str, Any>>
+  - requirement_sorted: List<int>
+  - test_case_sorted: List<int>
+  - duration_sorted: List<int>
+  - status_sorted: List<int>
+  - requirement_values: List<str>
+  - test_case_values: List<str>
+  - duration_values: List<float>
+  - status_values: List<str>
+  - review_lines: List<Tuple<int, str>>
+  --
+  + add_entry(key: int, entry: Dict<str, Any>) : void
+  + get_size() : int
+}
+
+class Printer {
+  --
+  + display_results(analysis: Dict<str, Any>, formatting: bool=True) : void
+  - do_advanced_output(top_entries: List<Tuple<int, Dict<str, Any>>]) : void
+  - do_basic_output(top_entries: List<Tuple<int, Dict<str, Any>>]) : void
+}
+
+class TestStatisticReadWrite {
+  - logger: Logger
+  - csv_path: str
+  - output_folder: str
+  - top_x: int
+  - sort_key: str
+  - csv_handler: CSVHandler
+  - analyser: Analyser
+  - printer: Printer
+  - data: Data
+  --
+  + __init__(csv_path: str, output_folder: str, top_x: int=10, sort_key: str="Duration", log_folder: str=None, verbose: bool=False)
+  + set_output_folder(output_folder: str) : void
+  + set_log_folder(log_folder: str) : void
+  + set_verbose(verbose: bool) : void
+  + set_sort_key(sort_key: str) : void
+  + run() : void
+}
+
+class Logger {
+  - logger: logging.Logger
+  - fh: FileHandler
+  - ch: StreamHandler
+  --
+  + set_log_folder(folder: str) : void
+  + set_verbose(enabled: bool) : void
+  + log_info(message: str) : void
+  + log_error(message: str) : void
+  + log_warning(message: str) : void
+}
+
+' --- Parsers ---
+abstract class EntryParser {
+  + parse(value: str) : Optional[Any]
+}
+
+class TestCaseParser {
+  + parse(value: str) : Optional<Dict<str, str>>
+}
+
+class DurationParser {
+  + parse(value: str) : Optional<float>
+}
+
+class StatusParser {
+  + parse(value: str) : Optional[str>
+}
+
+' --- Exceptions ---
+class FriendlyException {
+  - user_message: str
+}
+
+class InputFileNotFound
+class OutputFolderError
+class InvalidTopX
+class EmptyFileError
+class InvalidHeaderColumns
+class InvalidHeaderFormat
+class NoDataLinesError
+class NoValidLinesError
+class CSVExportError
+class InvalidSortingKey
+
+class CLI {
+}
+
+' ------------------
+' Inheritance Arrows
+' ------------------
+EntryParser <|-- TestCaseParser
+EntryParser <|-- DurationParser
+EntryParser <|-- StatusParser
+
+FriendlyException <|-- InputFileNotFound
+FriendlyException <|-- OutputFolderError
+FriendlyException <|-- InvalidTopX
+FriendlyException <|-- EmptyFileError
+FriendlyException <|-- InvalidHeaderColumns
+FriendlyException <|-- InvalidHeaderFormat
+FriendlyException <|-- NoDataLinesError
+FriendlyException <|-- NoValidLinesError
+FriendlyException <|-- CSVExportError
+FriendlyException <|-- InvalidSortingKey
+
+' ------------------
+' Association/Usage
+' ------------------
+TestStatisticReadWrite o-- CSVHandler
+TestStatisticReadWrite o-- Analyser
+TestStatisticReadWrite o-- Printer
+TestStatisticReadWrite o----- Logger
+
+CSVHandler o-- Logger
+'CSVHandler o-- TestCaseParser
+'CSVHandler o-- DurationParser
+'CSVHandler o-- StatusParser
+CSVHandler *-- EntryParser   : "has-a"
+CSVHandler --> Data : "Reads/Writes"
+
+Analyser o-- Logger
+Analyser --> Data : "Analyzes"
+
+Printer --> "Displays results from" Data : <<reads analysis data>>
+
+CLI --> TestStatisticReadWrite : "invokes"
+
+@enduml

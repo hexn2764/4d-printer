@@ -1,0 +1,122 @@
+@startuml TSRW Class Diagram
+title TSRW Class Diagram (Excluding Exceptions & Logger)
+
+skinparam wrapWidth 300
+
+' --------------------
+' Classes & Attributes
+' --------------------
+class TestStatisticReadWrite {
+  - _csv_path : str
+  - _output_folder : str
+  - _top_x : int
+  - _sort_key : str
+  - _log_folder : str
+  - _verbose : bool
+  --
+  + __init__(csv_path, output_folder, top_x=10, sort_key="Duration", log_folder=None, verbose=False)
+  + run() : void
+  + reset() : void
+  --
+  ~ csv_path : str  (property)
+  ~ output_folder : str (property)
+  ~ top_x : int (property)
+  ~ sort_key : str (property)
+  ~ log_folder : str (property)
+  ~ verbose : bool (property)
+  --
+  - csv_handler : CSVHandler
+  - analyser : Analyser
+  - printer : Printer
+}
+
+together {
+
+class CSVHandler {
+  - csv_path : str
+  - parsers : Dict<str, EntryParser>
+  --
+  + __init__(csv_path: str)
+  + read_csv() : Data
+  + export_csv(data: Data, export_folder: str, sort_key: str="Duration", timestamp: bool=False) : void
+  - _log_review_lines(data: Data) : void
+  - _generate_output_filename(sort_key: str, timestamp: bool) : str
+}
+
+class Analyser {
+  --
+  + __init__()
+  + analyze(data: Data, top_x: int) : Dict<str, Any>
+  - _get_total_duration(data: Data) : float
+  - _get_top_x_entries(data: Data, top_x: int) : List<Tuple[int, Dict[str, Any]]>
+  - _get_test_case_counts(data: Data) : Tuple[int, int, int>
+  - _get_status_counts(data: Data) : Dict<str, int>
+}
+
+class Printer {
+  --
+  + display_results(analysis: Dict[str, Any], formatting: bool=True) : void
+  - do_advanced_output(top_entries: List<Tuple[int, Dict[str, Any]]]) : void
+  - do_basic_output(top_entries: List<Tuple[int, Dict[str, Any]]]) : void
+  - get_width(top_entries, headers) : List[int]
+}
+
+}
+
+class Data {
+  - data : Dict<int, Dict[str, Any]]
+  - sorted_ids : Dict<str, List[int]]
+  - sorted_values : Dict<str, List[Any]]
+  - status_collections : Dict<str, List[int]]
+  - review_lines : List<Tuple[int, str]]
+  --
+  + __init__()
+  + add_entry(key: int, entry: Dict[str, Any]) : void
+  + get_size() : int
+  - _insert_into_sorted_index(...)
+}
+
+
+
+' --- Parser classes ---
+abstract class EntryParser {
+  {abstract} + parse(value: str) : Optional[Any]
+}
+
+class TestCaseParser {
+  + parse(value: str) : Optional[Dict[str, str]]
+}
+
+class DurationParser {
+  + parse(value: str) : Optional[float]
+}
+
+class StatusParser {
+  + parse(value: str) : Optional[str]
+} 
+
+' ------------------
+' Inheritance / Implementation
+' ------------------
+EntryParser <|-- TestCaseParser
+EntryParser <|-- DurationParser
+EntryParser <|-- StatusParser
+
+' ------------------
+' Associations
+' ------------------
+
+TestStatisticReadWrite o-- CSVHandler
+TestStatisticReadWrite o-- Analyser
+TestStatisticReadWrite o-- Printer
+
+CSVHandler -->  Data : "writes data"
+'CSVHandler *- TestCaseParser : "has-a" 
+'CSVHandler *- DurationParser : "has-a"
+'CSVHandler *- StatusParser   : "has-a"
+CSVHandler *-- EntryParser   : "has-a"
+
+Analyser --> Data : "reads data"
+Printer --> Data : "reads results"
+
+@enduml

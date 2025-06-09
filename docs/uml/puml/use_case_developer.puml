@@ -1,0 +1,25 @@
+@startuml Use Case Developer
+title Use Case Developer
+skinparam usecaseBorderColor DarkGreen
+skinparam actorBorderColor Olive
+skinparam actorStyle person
+
+actor "Developer" as dev
+
+rectangle "Direct Class Usage" {
+  usecase "Create an instance of\nTestStatisticReadWrite" as UC_A
+  usecase "Configure paths (CSV, output,\noptional log folder)" as UC_B
+  usecase "Set any advanced options\n(e.g., top_x, sort_key,\nlogger verbosity)" as UC_C
+  usecase "Call .run() to read,\nanalyze, print, export" as UC_D
+  usecase "Examine returned CSV\nand logs in folder" as UC_E
+  usecase "Change parameters and re-run the application" as UC_F
+
+}
+
+dev --> UC_A
+dev --> UC_B
+dev --> UC_C
+dev --> UC_D
+dev --> UC_E
+dev --> UC_F
+@enduml

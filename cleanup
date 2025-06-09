@@ -1,0 +1,25 @@
+#!/bin/bash
+
+if [[ "$VIRTUAL_ENV" != "" ]]; then
+    echo "ERROR: You have a virtualenv activated: $VIRTUAL_ENV"
+    echo "Please run 'deactivate' first, then re-run this cleanup script."
+    exit 1
+fi
+
+echo "Cleaning up unwanted files and folders..."
+
+rm -rf .pytest_cache
+rm -rf .venv
+rm -rf venv
+rm -rf .vscode
+rm -rf htmlcov
+rm -f .coverage
+rm -rf tsrw.egg-info
+rm -f test_statistic_read_wrte.log
+find . -type f -name '*.csv' -delete
+find . -type d -name '__pycache__' -exec rm -rf {} +
+find . -type f -name '*.pyc' -delete
+find . -type f -name '*.pyo' -delete
+find . -type f -name '*.pyd' -delete
+
+echo "Cleanup complete!"

@@ -1,0 +1,56 @@
+@startuml TestStatisticReadWrite Sequence Diagram
+autonumber
+title TestStatisticReadWrite Sequence Diagram
+
+actor user as "CLI User"
+boundary cli as "cli.py: main()"
+control loggerSingleton as "Logger (Singleton)"
+control TSRW as "TestStatisticReadWrite"
+control CSVH as "CSVHandler"
+control AN as "Analyser"
+control PR as "Printer"
+entity DA as "Data"
+
+user -> cli: 1) Run `tsrw` with arguments
+cli -> loggerSingleton: 2) logger = Logger()  (singleton)
+cli -> cli: 3) argparse parses CLI args
+cli -> TSRW: 4) tsrw = TestStatisticReadWrite(...)
+
+note over TSRW
+   - Validates csv_path & output_folder
+   - Creates CSVHandler, Analyser, Printer
+   - Sets up Logger (optional log folder, verbosity, etc.)
+end note
+
+cli -> TSRW: 5) tsrw.run()
+
+TSRW -> CSVH: 6) data = csv_handler.read_csv()
+note over CSVH
+   - Opens file, reads lines
+   - Validates header, checks columns
+   - Loops over data lines
+   - Uses TestCaseParser, DurationParser, StatusParser
+   - If valid, calls data.add_entry(...)
+   - Collects invalid lines in data.review_lines
+   - Raises exceptions on critical errors
+end note
+CSVH -> DA: Instantiates new Data(), populates it
+CSVH -> CSVH: _log_review_lines(data)
+CSVH --> TSRW: returns Data object
+
+TSRW -> AN: 7) result = analyser.analyze(data, top_x)
+AN -> loggerSingleton: logs error if top_x invalid
+AN -> DA: reads from data, calculates total_duration, top_x_entries, test_case_counts, status_counts
+AN --> TSRW: returns dict with analysis results
+
+TSRW -> PR: 8) printer.display_results(result)
+PR -> PR: optionally do_advanced_output(...) or do_basic_output(...)
+PR --> TSRW: returns
+
+TSRW -> CSVH: 9) csv_handler.export_csv(data, output_folder, sort_key, ...)
+CSVH -> loggerSingleton: logs info/warn/error if needed
+CSVH -> DA: reads sorting IDs, writes CSV
+CSVH --> TSRW: returns
+
+TSRW -> cli: Done (exits)
+@enduml

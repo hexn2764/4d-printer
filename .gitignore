@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.venv/
+venv/
+.vscode/
+htmlcov/
+.coverage
+tsrw.egg-info/
+test_statistic_read_wrte.log
+*.csv
+*.bak
+*.tmp
+*~
+.DS_Store

@@ -1,0 +1,97 @@
+@startuml TSRW Simplified Class Diagram
+title TSRW Simplified Class Diagram
+
+'skinparam wrapWidth 300
+'skinparam classAttributeIconSize 0
+
+' --------------------
+' Classes & Attributes
+' --------------------
+class TestStatisticReadWrite {
+  ~ csv_path : str  (property)
+  ~ output_folder : str (property)
+  ~ top_x : int (property)
+  ~ sort_key : str (property)
+  ~ log_folder : str (property)
+  ~ verbose : bool (property)
+  --
+  + __init__()
+  + run()
+  + reset()
+}
+
+together {
+
+class CSVHandler {
+  + read_csv()
+  + export_csv()
+}
+
+class Analyser {
+  --
+  + analyze()
+}
+
+class Printer {
+  --
+  + display_results()
+}
+
+}
+
+class Data {
+  - data 
+  --
+  + add_entry()
+  + get_size()
+}
+
+class ClientLineInterface {
+  
+}
+
+' --- Parser classes ---
+abstract class EntryParser {
+  {abstract} + parse()
+}
+
+class TestCaseParser {
+  + parse()
+}
+
+class DurationParser {
+  + parse()
+}
+
+class StatusParser {
+  + parse()
+} 
+
+' ------------------
+' Inheritance / Implementation
+' ------------------
+EntryParser <|-- TestCaseParser
+EntryParser <|-- DurationParser
+EntryParser <|-- StatusParser
+
+' ------------------
+' Associations
+' ------------------
+
+TestStatisticReadWrite o-- CSVHandler
+TestStatisticReadWrite o-- Analyser
+TestStatisticReadWrite o-- Printer
+
+CSVHandler --> Data : "writes data"
+'CSVHandler *- TestCaseParser : "has-a" 
+'CSVHandler *- DurationParser : "has-a"
+'CSVHandler *- StatusParser   : "has-a"
+CSVHandler *-- EntryParser   : "has-a"
+
+Analyser --> Data : "reads data"
+Printer --> Data : "reads results"
+
+ClientLineInterface --> TestStatisticReadWrite : "invokes"
+
+
+@enduml

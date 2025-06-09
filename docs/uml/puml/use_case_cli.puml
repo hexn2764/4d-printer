@@ -1,0 +1,24 @@
+@startuml Use Case CLI
+title Use Case CLI
+skinparam usecaseBorderColor DarkBlue
+skinparam actorBorderColor Navy
+skinparam actorStyle person
+
+actor "CLI User" as user
+
+rectangle "TestStatisticReadWrite CLI" {
+  usecase "Invoke 'tsrw' script\nwith arguments\n(e.g., -i, -o, etc.)" as UC1
+  usecase "View output CSV\nin 'output_folder'" as UC2
+  usecase "Observe console output\n(top X tests, total duration, etc.)" as UC3
+  usecase "Optionally read logs\n(if log folder is set)" as UC4
+  usecase "Can choose a sorting key" as UC5
+
+}
+
+user --> UC1
+user --> UC2
+user --> UC3
+user --> UC4
+user --> UC5
+
+@enduml

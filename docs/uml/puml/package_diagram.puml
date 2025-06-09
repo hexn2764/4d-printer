@@ -1,0 +1,33 @@
+@startuml  Package Diagram – TestStatisticReadWrite
+title Package Diagram – TestStatisticReadWrite
+
+package "test_statistic_read_write" {
+  package "_analyser" as analyser
+  package "_printer" as printer
+  package "_csv_handler" as csv_handler
+  package "_parser" as parser
+  package "_exceptions" as exceptions
+  package "_logger" as logger
+  package "_data" as data
+  package "cli" as cli
+  package "test_statistic_read_write.py" as orchestrator
+}
+
+analyser .-> logger
+analyser --> data
+
+printer --> data
+
+csv_handler --> data
+csv_handler --> parser
+csv_handler .-> logger
+csv_handler .-> exceptions
+
+orchestrator --> csv_handler
+orchestrator --> analyser
+orchestrator --> printer
+orchestrator .-> logger
+orchestrator .-> exceptions
+
+cli --> orchestrator
+@enduml

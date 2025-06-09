@@ -1,0 +1,21 @@
+@startuml Deployment Diagram – Typical Execution
+title Deployment Diagram – Typical Execution
+
+node "User Machine" as machine {
+  node "Python 3.x Environment" as python {
+    artifact "CLI script: tsrw" as CLIArtifact
+    artifact "test_statistic_read_write\n(package & modules)" as Package
+    artifact "CSV input file" as CSV
+    artifact "Output folder" as OutFolder
+    artifact "Log folder" as LogFolder
+    artifact "Console" as Console
+
+    CLIArtifact --> Package : uses classes from
+    CLIArtifact --> CSV : read
+    CLIArtifact --> OutFolder : writes exported CSV
+    CLIArtifact --> LogFolder : writes logs
+    CLIArtifact --> Console : prints analysis
+  }
+}
+
+@enduml

@@ -1,0 +1,87 @@
+@startuml CSVHandler.read_csv() Control Flow
+title CSVHandler.read_csv() Control Flow
+
+start
+:Instantiate Data() => data;
+:Attempt to open <csv_path> for reading;
+
+if (File open OK?) then (Yes)
+  :lines = f.readlines();
+  if (lines is empty?) then (Yes)
+    :logger.log_error("File is empty");
+    :raise EmptyFileError;
+    stop
+  else (No)
+    :Validate first line is a 3-column header;
+    if (header_parts != 3) then (Mismatch)
+      :logger.log_error("InvalidHeaderColumns");
+      :raise InvalidHeaderColumns;
+      stop
+    endif
+    if (header != ["Test case","Duration","Status"]) then (Mismatch)
+      :logger.log_error("InvalidHeaderFormat");
+      :raise InvalidHeaderFormat;
+      stop
+    endif
+
+    if (lines.length == 1) then (No data lines)
+      :logger.log_error("NoDataLinesError");
+      :raise NoDataLinesError;
+      stop
+    else (Has data lines)
+      :current_id = 1;
+      repeat :For each line in lines[1..];
+        split
+          if (num columns != 3?) then (Yes)
+            :logger.log_warning("Incorrect column count");
+            :data.review_lines.append(...);
+          else (No)
+            :Check empty fields?;
+            if (Any empty?) then (Yes)
+              :logger.log_warning("Empty field");
+              :data.review_lines.append(...);
+            else (No)
+              :Parse Test Case;
+              if (None returned?) then (Yes)
+                :logger.log_warning("TestCase parse error");
+                :data.review_lines.append(...);
+              else (No)
+                :Parse Duration;
+                if (None returned?) then (Yes)
+                  :logger.log_warning("Duration parse error");
+                  :data.review_lines.append(...);
+                else (No)
+                  :Parse Status;
+                  if (None returned?) then (Yes)
+                    :logger.log_warning("Status parse error");
+                    :data.review_lines.append(...);
+                  else (No)
+                    :Construct entry dict;
+                    :data.add_entry(current_id, entry);
+                    :current_id++;
+                  endif
+                endif
+              endif
+            endif
+          endif
+        end split
+      repeat while (lines left);
+
+      if (data.get_size() == 0?) then (Yes)
+        :logger.log_error("NoValidLinesError");
+        :raise NoValidLinesError;
+        stop
+      else (No)
+        :_log_review_lines(data);
+        :return data;
+        stop
+      endif
+    endif
+  endif
+else (No)
+  :logger.log_error("InputFileNotFound");
+  :raise InputFileNotFound;
+  stop
+endif
+
+@enduml
