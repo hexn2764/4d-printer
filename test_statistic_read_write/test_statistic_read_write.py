@@ -9,6 +9,7 @@ from test_statistic_read_write._exceptions import *
 import os 
 
 class TestStatisticReadWrite:
+    __test__ = False
     """
     High-level orchestrator:
 

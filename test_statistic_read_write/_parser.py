@@ -20,6 +20,7 @@ class EntryParser(ABC):
         pass
 
 class TestCaseParser(EntryParser):
+    __test__ = False
     """
     Validates and parses '<requirement>\\<test_case>' format.
     """
@@ -27,7 +28,7 @@ class TestCaseParser(EntryParser):
         self.logger = Logger()
 
     def parse(self, value: str) -> Optional[Dict[str, str]]:
-        """
+        r"""
         Parses a string in the format '<requirement>\<test_case>'.
 
         Args:
