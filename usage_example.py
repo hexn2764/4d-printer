@@ -5,7 +5,7 @@ from test_statistic_read_write.test_statistic_read_write import TestStatisticRea
 
 def run_example():
     project_root = os.path.abspath(os.path.dirname(__file__))
-    csv_path = os.path.join(project_root, 'sample_data', 'TestSuite_Invalid.csv')
+    csv_path = os.path.join(project_root, 'sample_data', '4d_printer_test_data.csv')
     output_folder = os.path.join(project_root, 'output')
     top_x = 50
 
@@ -19,7 +19,7 @@ def run_example():
     )
     tsrw.run()
 
-    tsrw.csv_path = os.path.join(project_root, 'sample_data', 'TestSuite_Normal.csv')
+    tsrw.csv_path = os.path.join(project_root, 'sample_data', '4d_printer_test_data.csv')
     tsrw.sort_key = "Requirement"
     tsrw.top_x = 3
     tsrw.reset()
