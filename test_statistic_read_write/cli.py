@@ -45,13 +45,13 @@ def main():
     )
     parser.add_argument(
         "-i",
-        required=True,
+        required=False,
         metavar="<input CSV>",
         help="Path to the input CSV file."
     )
     parser.add_argument(
         "-o",
-        required=True,
+        required=False,
         metavar="<output dir>",
         help="Path to the output folder for export CSV."
     )
@@ -81,10 +81,39 @@ def main():
              "Valid options are 'Requirement', 'Test Case', 'Duration', 'Status' and 'none'. "
              "Default is 'Duration'."
     )
+    parser.add_argument(
+    "-g",
+    nargs="?",
+    const="4d_printer_test_data.csv",    # if just -g is passed, default filename
+    metavar="<filename>",
+    help="If specified, run the data generator first. "
+         "Optional: provide output filename (will be placed in sample_data/). "
+         "Default filename is '4d_printer_test_data.csv'."
+    )
+
 
     args = parser.parse_args()
     
-    # Logger
+    # If -g is specified, then run generator and exit immediately
+    if args.g is not None:
+        generator_output_path = os.path.join(os.path.abspath("sample_data"), args.g)
+        print(f"Generating test data in: {generator_output_path}")
+
+        generator_script = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "sample_data", "generator.py"))
+
+        ret = os.system(f"{sys.executable} {generator_script} {generator_output_path}")
+        if ret != 0:
+            print("Error: Data generation failed.")
+            sys.exit(1)
+        print("Data generation completed successfully.\n")
+        sys.exit(0)
+
+    # If -g was NOT passed, ensure -i and -o are provided
+    if not args.i or not args.o:
+        print("Error: -i and -o are required when not using -g.")
+        parser.print_help()
+        sys.exit(1)
+
     logger = Logger()
     log_folder = None
     if args.L:
@@ -94,6 +123,19 @@ def main():
     atexit.register(log_end_of_session)
 
     logger.log_info("CLI: Execution started.")
+
+    if args.g is not None:
+        generator_output_path = os.path.join(os.path.abspath("sample_data"), args.g)
+        print(f"Generating test data in: {generator_output_path}")
+
+        generator_script = os.path.join(os.path.dirname(__file__), "..", "sample_data", "generator.py")
+
+        ret = os.system(f"{sys.executable} {generator_script} {generator_output_path}")
+        if ret != 0:
+            print("Error: Data generation failed.")
+            sys.exit(1)
+        print("Data generation completed successfully.\n")
+
     try:
         tsrw = TestStatisticReadWrite(
             csv_path=os.path.abspath(args.i),
