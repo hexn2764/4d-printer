@@ -7,6 +7,7 @@ __pycache__/
 venv/
 .vscode/
 htmlcov/
+output/
 .coverage
 tsrw.egg-info/
 test_statistic_read_wrte.log
